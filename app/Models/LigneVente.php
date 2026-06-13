@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TypeLigneVente;
 use Illuminate\Database\Eloquent\Model;
 
 class LigneVente extends Model
@@ -14,6 +15,11 @@ class LigneVente extends Model
         'type_ligne', 'description', 'qte', 'prix_unitaire', 'remise_pct',
         'total_ligne', 'livree',
         'id_vente', 'id_article', 'id_tarif_verre', 'id_type_verre',
+    ];
+
+    protected $casts = [
+        'type_ligne' => TypeLigneVente::class,
+        'livree' => 'boolean',
     ];
 
     public function vente()

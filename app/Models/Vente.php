@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ModePaiement;
+use App\Enums\StatutVente;
 use Illuminate\Database\Eloquent\Model;
 
 class Vente extends Model
@@ -15,6 +17,12 @@ class Vente extends Model
         'total_ttc', 'montant_encaisse', 'reste_a_payer', 'mode_paiement',
         'date_livraison_prevue', 'livree', 'statut_vente', 'note',
         'id_client', 'id_session', 'id_ordonnance',
+    ];
+
+    protected $casts = [
+        'statut_vente' => StatutVente::class,
+        'mode_paiement' => ModePaiement::class,
+        'livree' => 'boolean',
     ];
 
     public function client()
