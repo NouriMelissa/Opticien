@@ -2,7 +2,39 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MedecinController;
+use App\Http\Controllers\CommandeController;
+use App\Http\Controllers\LigneVenteController;
+use App\Http\Controllers\VenteController;
 
+
+/*
+|--------------------------------------------------------------------------
+| Ventes
+|--------------------------------------------------------------------------
+*/
+Route::apiResource('ventes', VenteController::class);
+Route::post('ventes/{vente}/valider', [VenteController::class, 'valider']);
+Route::post('ventes/{vente}/annuler', [VenteController::class, 'annuler']);
+
+/*
+|--------------------------------------------------------------------------
+| Lignes Vente
+|--------------------------------------------------------------------------
+*/
+// Lire toutes les lignes d'une vente
+Route::get('ventes/{idVente}/lignes', [LigneVenteController::class, 'index']);
+
+// CRUD sur une ligne (hors index)
+Route::apiResource('lignes-vente', LigneVenteController::class)->except(['index']);
+
+/*
+|--------------------------------------------------------------------------
+| Commandes Fournisseur
+|--------------------------------------------------------------------------
+*/
+Route::apiResource('commandes', CommandeController::class);
+Route::post('commandes/{commande}/receptionner', [CommandeController::class, 'receptionner']);
+Route::post('commandes/{commande}/annuler',      [CommandeController::class, 'annuler']);
 // ════════════════════════════════════════════════════════════════
 // TEST — Vérifier que l'API fonctionne (garder tel quel)
 // GET /api/hello

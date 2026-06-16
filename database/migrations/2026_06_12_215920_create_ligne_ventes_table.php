@@ -19,10 +19,21 @@ return new class extends Migration
             $table->decimal('total_ligne', 12, 2)->default(0);
             $table->boolean('livree')->default(false);
 
-            $table->foreignId('id_vente')->constrained('ventes', 'id_vente')->onDelete('cascade');
-            $table->foreignId('id_article')->nullable()->constrained('articles', 'id_article')->onDelete('set null');
-            $table->foreignId('id_tarif_verre')->nullable()->constrained('tarif_verres', 'id_tarif_verre')->onDelete('set null');
-            $table->foreignId('id_type_verre')->nullable()->constrained('type_verres', 'id_type_verre')->onDelete('set null');
+            $table->foreignId('id_vente')
+                ->constrained('ventes', 'id_vente')
+                ->onDelete('cascade');
+            $table->foreignId('id_article')
+                ->nullable()
+                ->constrained('articles', 'id_article')
+                ->onDelete('set null');
+            $table->foreignId('id_tarif_verre')
+                ->nullable()
+                ->constrained('tarif_verres', 'id_tarif_verre')
+                ->onDelete('set null');
+            $table->foreignId('id_type_verre')
+                ->nullable()
+                ->constrained('type_verres', 'id_type_verre')
+                ->onDelete('set null');
         });
     }
 
