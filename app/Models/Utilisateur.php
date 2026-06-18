@@ -2,48 +2,44 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use App\Enums\RoleEnum;
 
-class Utilisateur extends Model
+class Utilisateur extends Authenticatable
 {
-    protected $table = 'utilisateurs';
-    protected $primaryKey = 'id_util';
+    use Notifiable;
+
+    protected $table = 'users';
+    protected $primaryKey = 'id';
     public $timestamps = false;
 
     protected $fillable = [
-        'nom', 'prenom', 'login', 'password_hash', 'email',
-        'tel_portable', 'role', 'actif', 'id_wilaya', 'created_at',
+        'nom',
+        'prenom',
+        'email',
+        'password',
+        'tel_portable',
+        'role',
+        'actif',
+        'id_wilaya',
+        'created_at',
     ];
 
-    protected $hidden = ['password_hash'];
+    protected $hidden = ['password'];
 
-    public function wilaya()
+    public function getAuthPassword()
     {
-        return $this->belongsTo(Wilaya::class, 'id_wilaya', 'id_wilaya');
+        return $this->password;
     }
 
-    public function sessions()
+    public function isAdmin(): bool
     {
-        return $this->hasMany(SessionShift::class, 'id_util', 'id_util');
+        return $this->role === RoleEnum::ADMIN->value;
     }
 
-    public function clients()
+    public function isVendeur(): bool
     {
-        return $this->hasMany(Client::class, 'id_util', 'id_util');
-    }
-
-    public function mouvementsCaisse()
-    {
-        return $this->hasMany(MouvementCaisse::class, 'id_util', 'id_util');
-    }
-
-    public function mouvementsStock()
-    {
-        return $this->hasMany(MouvementStock::class, 'id_util', 'id_util');
-    }
-
-    public function commandesFournisseur()
-    {
-        return $this->hasMany(CommandeFournisseur::class, 'id_util', 'id_util');
+        return $this->role === RoleEnum::VENDEUR->value;
     }
 }
