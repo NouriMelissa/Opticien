@@ -39,9 +39,10 @@ return new class extends Migration
 
             // FK utilisateur créateur (nullable)
             $table->unsignedBigInteger('created_by')->nullable();
-            $table->foreign('created_by')
-                  ->references('id_util')->on('utilisateurs')
-                  ->nullOnDelete();
+            // APRÈS — pointe vers users.id (table Laravel par défaut)
+          $table->foreign('created_by')
+          ->references('id')->on('users')
+         ->nullOnDelete();
 
             // Pas de timestamps Laravel classiques (on gère client_depuis/derniere_visite nous-mêmes)
         });
