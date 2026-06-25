@@ -15,9 +15,6 @@ class CommandeController extends Controller
 {
     public function __construct(private CommandeService $service) {}
 
-    /**
-     * GET /api/commandes
-     */
     public function index(Request $request)
     {
         $commandes = $this->service->lister(
@@ -27,77 +24,67 @@ class CommandeController extends Controller
         return CommandeResource::collection($commandes);
     }
 
-    /**
-     * GET /api/commandes/{commande}
-     */
     public function show(CommandeFournisseur $commande)
     {
-        return new CommandeResource(
-            $this->service->trouver($commande->id_commande)
-        );
-    }
-
-    /**
-     * POST /api/commandes
-     */
-    public function store(StoreCommandeRequest $request)
-    {
-        $commande = $this->service->creer($request->validated());
+        try {
+            $commande = $this->service->trouver($commande->id_commande);
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Commande introuvable.', 'errors' => $e->errors()], 404);
+        }
 
         return new CommandeResource($commande);
     }
 
-    /**
-     * PUT /api/commandes/{commande}
-     */
+    public function store(StoreCommandeRequest $request)
+    {
+        try {
+            $commande = $this->service->creer($request->validated());
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Erreur lors de la création.', 'errors' => $e->errors()], 422);
+        }
+
+        return new CommandeResource($commande);
+    }
+
     public function update(UpdateCommandeRequest $request, CommandeFournisseur $commande)
     {
         try {
             $commande = $this->service->modifier($commande, $request->validated());
         } catch (ValidationException $e) {
-            return response()->json(['message' => $e->errors()], 422);
+            return response()->json(['message' => 'Erreur lors de la modification.', 'errors' => $e->errors()], 422);
         }
 
         return new CommandeResource($commande);
     }
 
-    /**
-     * POST /api/commandes/{commande}/receptionner
-     */
     public function receptionner(ReceptionCommandeRequest $request, CommandeFournisseur $commande)
     {
         try {
             $commande = $this->service->receptionner($commande, $request->validated());
         } catch (ValidationException $e) {
-            return response()->json(['message' => $e->errors()], 422);
+            return response()->json(['message' => 'Erreur lors de la réception.', 'errors' => $e->errors()], 422);
         }
 
         return new CommandeResource($commande);
     }
 
-    /**
-     * POST /api/commandes/{commande}/annuler
-     */
     public function annuler(CommandeFournisseur $commande)
     {
         try {
             $commande = $this->service->annuler($commande);
         } catch (ValidationException $e) {
-            return response()->json(['message' => $e->errors()], 422);
+            return response()->json(['message' => 'Erreur lors de l\'annulation.', 'errors' => $e->errors()], 422);
         }
 
         return new CommandeResource($commande);
     }
 
-    /**
-     * DELETE /api/commandes/{commande}
-     */
     public function destroy(CommandeFournisseur $commande)
     {
         try {
             $this->service->supprimer($commande);
         } catch (ValidationException $e) {
-            return response()->json(['message' => $e->errors()], 422);
+            return response()->json(['message' => 'Erreur lors de la suppression.', 'errors' => $e->errors()], 422);
         }
 
         return response()->noContent();

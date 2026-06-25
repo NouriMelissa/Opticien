@@ -12,17 +12,9 @@ class LigneVente extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'type_ligne',
-        'description',
-        'qte',
-        'prix_unitaire',
-        'remise_pct',
-        'total_ligne',
-        'livree',
-        'id_vente',
-        'id_article',
-        'id_tarif_verre',
-        'id_type_verre',
+        'type_ligne', 'description', 'qte', 'prix_unitaire',
+        'remise_pct', 'total_ligne', 'livree',
+        'id_vente', 'id_article', 'id_tarif_verre', 'id_type_verre',
     ];
 
     protected $casts = [
@@ -53,9 +45,6 @@ class LigneVente extends Model
         return $this->belongsTo(TypeVerre::class, 'id_type_verre', 'id_type_verre');
     }
 
-    /**
-     * total_ligne = (prix_unitaire × qte) × (1 - remise_pct / 100)
-     */
     public function calculerTotal(): void
     {
         $this->total_ligne = ($this->prix_unitaire * $this->qte)

@@ -10,31 +10,69 @@ use Illuminate\Validation\ValidationException;
 
 class LigneVenteService
 {
+    /**
+     * Liste les lignes d'une vente.
+     *
+     * @throws ValidationException si la vente n'existe pas
+     */
     public function lister(int $idVente)
     {
+        $vente = Vente::find($idVente);
+
+        if (!$vente) {
+            throw ValidationException::withMessages([
+                'id_vente' => "La vente n°$idVente n'existe pas.",
+            ]);
+        }
+
         return LigneVente::with(['article', 'tarifVerre', 'typeVerre'])
             ->where('id_vente', $idVente)
             ->get();
     }
 
+    /**
+     * @throws ValidationException si la ligne n'existe pas
+     */
     public function trouver(int $id): LigneVente
     {
-        return LigneVente::with(['vente', 'article', 'tarifVerre', 'typeVerre'])
-            ->findOrFail($id);
+        $ligne = LigneVente::with(['vente', 'article', 'tarifVerre', 'typeVerre'])->find($id);
+
+        if (!$ligne) {
+            throw ValidationException::withMessages([
+                'id_ligne_vente' => "Aucune ligne de vente trouvée avec l'identifiant $id.",
+            ]);
+        }
+
+        return $ligne;
     }
 
     /**
-     * Ajoute une ligne à une vente brouillon et recalcule son total.
+     * Ajoute une ligne à une vente en brouillon et recalcule le total.
+     *
+     * @throws ValidationException si la vente n'existe pas, n'est pas en brouillon, ou la ligne échoue
      */
     public function ajouter(array $data): LigneVente
     {
-        $vente = Vente::findOrFail($data['id_vente']);
+        $vente = Vente::find($data['id_vente']);
+
+        if (!$vente) {
+            throw ValidationException::withMessages([
+                'id_vente' => "La vente n°{$data['id_vente']} n'existe pas. Impossible d'ajouter une ligne.",
+            ]);
+        }
+
         $this->verifierBrouillon($vente);
 
         return DB::transaction(function () use ($data, $vente) {
-            $ligne = new LigneVente($data);
-            $ligne->calculerTotal();
-            $ligne->save();
+            try {
+                $ligne = new LigneVente($data);
+                $ligne->calculerTotal();
+                $ligne->save();
+            } catch (\Throwable $e) {
+                throw ValidationException::withMessages([
+                    'ligne' => "Erreur lors de l'ajout de la ligne à la vente n°{$vente->id_vente} : " . $e->getMessage(),
+                ]);
+            }
 
             $this->recalculerVente($vente);
 
@@ -43,17 +81,32 @@ class LigneVenteService
     }
 
     /**
-     * Modifie une ligne et recalcule le total de la vente.
+     * Modifie une ligne existante et recalcule le total de la vente.
+     *
+     * @throws ValidationException si la vente n'existe pas, n'est pas en brouillon, ou la modification échoue
      */
     public function modifier(LigneVente $ligne, array $data): LigneVente
     {
-        $vente = Vente::findOrFail($ligne->id_vente);
+        $vente = Vente::find($ligne->id_vente);
+
+        if (!$vente) {
+            throw ValidationException::withMessages([
+                'id_vente' => "La vente associée à la ligne n°{$ligne->id_ligne_vente} n'existe plus.",
+            ]);
+        }
+
         $this->verifierBrouillon($vente);
 
         return DB::transaction(function () use ($ligne, $data, $vente) {
-            $ligne->fill($data);
-            $ligne->calculerTotal();
-            $ligne->save();
+            try {
+                $ligne->fill($data);
+                $ligne->calculerTotal();
+                $ligne->save();
+            } catch (\Throwable $e) {
+                throw ValidationException::withMessages([
+                    'ligne' => "Erreur lors de la modification de la ligne n°{$ligne->id_ligne_vente} : " . $e->getMessage(),
+                ]);
+            }
 
             $this->recalculerVente($vente);
 
@@ -63,10 +116,19 @@ class LigneVenteService
 
     /**
      * Supprime une ligne et recalcule le total de la vente.
+     *
+     * @throws ValidationException si la vente n'existe pas ou n'est pas en brouillon
      */
     public function supprimer(LigneVente $ligne): void
     {
-        $vente = Vente::findOrFail($ligne->id_vente);
+        $vente = Vente::find($ligne->id_vente);
+
+        if (!$vente) {
+            throw ValidationException::withMessages([
+                'id_vente' => "La vente associée à la ligne n°{$ligne->id_ligne_vente} n'existe plus.",
+            ]);
+        }
+
         $this->verifierBrouillon($vente);
 
         DB::transaction(function () use ($ligne, $vente) {
@@ -86,7 +148,7 @@ class LigneVenteService
     {
         if ($vente->statut_vente !== StatutVente::Brouillon) {
             throw ValidationException::withMessages([
-                'statut_vente' => 'Les lignes ne sont modifiables que sur une vente en brouillon.',
+                'statut_vente' => "Les lignes ne sont modifiables que sur une vente en brouillon (vente n°{$vente->id_vente}, statut actuel : {$vente->statut_vente->value}).",
             ]);
         }
     }

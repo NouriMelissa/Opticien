@@ -6,10 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ValiderVenteRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
+    public function authorize(): bool { return true; }
 
     public function rules(): array
     {
@@ -21,8 +18,8 @@ class ValiderVenteRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'id_util.required' => 'L\'utilisateur qui valide la vente est obligatoire.',
-            'id_util.exists' => 'Cet utilisateur n\'existe pas.',
+            'id_util.required' => 'L\'identifiant de l\'utilisateur est obligatoire.',
+            'id_util.exists'   => 'Cet utilisateur n\'existe pas.',
         ];
     }
 }

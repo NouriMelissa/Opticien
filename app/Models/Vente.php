@@ -20,9 +20,9 @@ class Vente extends Model
     ];
 
     protected $casts = [
-        'statut_vente' => StatutVente::class,
+        'statut_vente'  => StatutVente::class,
         'mode_paiement' => ModePaiement::class,
-        'livree' => 'boolean',
+        'livree'        => 'boolean',
     ];
 
     public function client()
@@ -60,15 +60,12 @@ class Vente extends Model
         return $this->hasMany(Facture::class, 'id_vente', 'id_vente');
     }
 
-    /**
-     * Recalcule le total_ttc à partir des lignes de vente.
-     */
     public function recalculerTotal(): void
     {
         $totalAvantRemise = $this->ligneVentes->sum('total_ligne');
         $this->total_avant_remise = $totalAvantRemise;
         $this->remise_globale_mnt = $totalAvantRemise * ($this->remise_globale_pct / 100);
-        $this->total_ttc = $totalAvantRemise - $this->remise_globale_mnt;
-        $this->reste_a_payer = $this->total_ttc - $this->montant_encaisse;
+        $this->total_ttc          = $totalAvantRemise - $this->remise_globale_mnt;
+        $this->reste_a_payer      = $this->total_ttc - $this->montant_encaisse;
     }
 }

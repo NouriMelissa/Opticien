@@ -23,4 +23,16 @@ class UpdateLigneVenteRequest extends FormRequest
             'id_type_verre'  => 'nullable|exists:type_verres,id_type_verre',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'qte.min'               => 'La quantité doit être au moins 1.',
+            'prix_unitaire.min'     => 'Le prix unitaire ne peut pas être négatif.',
+            'remise_pct.max'        => 'La remise ne peut pas dépasser 100%.',
+            'id_article.exists'     => 'Cet article n\'existe pas.',
+            'id_tarif_verre.exists' => 'Ce tarif de verre n\'existe pas.',
+            'id_type_verre.exists'  => 'Ce type de verre n\'existe pas.',
+        ];
+    }
 }

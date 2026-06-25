@@ -15,6 +15,11 @@ class LigneCommande extends Model
         'id_commande', 'id_article', 'id_tarif_verre',
     ];
 
+    protected $casts = [
+        'prix_unitaire' => 'float',
+    
+    ];
+
     public function commande()
     {
         return $this->belongsTo(CommandeFournisseur::class, 'id_commande', 'id_commande');
@@ -28,5 +33,10 @@ class LigneCommande extends Model
     public function tarifVerre()
     {
         return $this->belongsTo(TarifVerre::class, 'id_tarif_verre', 'id_tarif_verre');
+    }
+
+    public function getTotalLigneAttribute(): float
+    {
+        return $this->prix_unitaire * $this->qte_commandee;
     }
 }

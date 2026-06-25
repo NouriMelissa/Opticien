@@ -20,6 +20,7 @@ class UpdateCommandeRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'date_commande.date'    => 'La date de commande doit être une date valide.',
             'id_fournisseur.exists' => 'Ce fournisseur n\'existe pas.',
         ];
     }

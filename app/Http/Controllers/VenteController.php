@@ -13,27 +13,35 @@ use Illuminate\Validation\ValidationException;
 
 class VenteController extends Controller
 {
-    public function __construct(private VenteService $venteService)
-    {
-    }
+    public function __construct(private VenteService $venteService) {}
 
     public function index(Request $request)
     {
-        $ventes = $this->venteService->lister($request->only('id_client', 'id_session', 'statut_vente'));
+        $ventes = $this->venteService->lister(
+            $request->only('id_client', 'id_session', 'statut_vente')
+        );
 
         return VenteResource::collection($ventes);
     }
 
     public function show($id)
     {
-        $vente = $this->venteService->trouver($id);
+        try {
+            $vente = $this->venteService->trouver($id);
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Vente introuvable.', 'errors' => $e->errors()], 404);
+        }
 
         return new VenteResource($vente);
     }
 
     public function store(StoreVenteRequest $request)
     {
-        $vente = $this->venteService->creer($request->validated());
+        try {
+            $vente = $this->venteService->creer($request->validated());
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Erreur lors de la création.', 'errors' => $e->errors()], 422);
+        }
 
         return new VenteResource($vente);
     }
@@ -43,7 +51,7 @@ class VenteController extends Controller
         try {
             $vente = $this->venteService->modifier($vente, $request->validated());
         } catch (ValidationException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return response()->json(['message' => 'Erreur lors de la modification.', 'errors' => $e->errors()], 422);
         }
 
         return new VenteResource($vente);
@@ -54,7 +62,7 @@ class VenteController extends Controller
         try {
             $vente = $this->venteService->valider($vente, $request->id_util);
         } catch (ValidationException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return response()->json(['message' => 'Erreur lors de la validation.', 'errors' => $e->errors()], 422);
         }
 
         return new VenteResource($vente);
@@ -65,7 +73,7 @@ class VenteController extends Controller
         try {
             $vente = $this->venteService->annuler($vente, $request->id_util);
         } catch (ValidationException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return response()->json(['message' => 'Erreur lors de l\'annulation.', 'errors' => $e->errors()], 422);
         }
 
         return new VenteResource($vente);
@@ -76,7 +84,7 @@ class VenteController extends Controller
         try {
             $this->venteService->supprimer($vente);
         } catch (ValidationException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return response()->json(['message' => 'Erreur lors de la suppression.', 'errors' => $e->errors()], 422);
         }
 
         return response()->noContent();

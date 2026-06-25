@@ -6,20 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+     
         Schema::create('ligne_commandes', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_ligne_commande');
+            $table->integer('qte_commandee');
+            $table->integer('qte_recue')->default(0);
+            $table->decimal('prix_unitaire', 10, 2)->default(0);
+
+            $table->foreignId('id_commande')
+                ->constrained('commande_fournisseurs', 'id_commande')
+                ->onDelete('cascade');
+            $table->foreignId('id_article')
+                ->nullable()
+                ->constrained('articles', 'id_article')
+                ->onDelete('set null');
+            $table->foreignId('id_tarif_verre')
+                ->nullable()
+                ->constrained('tarif_verres', 'id_tarif_verre')
+                ->onDelete('set null');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('ligne_commandes');
