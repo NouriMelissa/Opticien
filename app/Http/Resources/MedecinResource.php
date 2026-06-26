@@ -34,7 +34,7 @@ class MedecinResource extends JsonResource
             }),
 
             // Nombre d'ordonnances liées — inclus seulement si withCount('ordonnances')
-            'nb_ordonnances' => $this->whenCounted('ordonnances'),
+            // 'nb_ordonnances' => $this->whenCounted('ordonnances'),
         ];
     }
 }
