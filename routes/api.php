@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\SessionShiftController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MagasinController;
 
 // UTILISATEURS CRUD
 Route::get('/utilisateurs', [UtilisateurController::class, 'index']);
@@ -23,3 +24,10 @@ Route::delete('/sessions/{id}', [SessionShiftController::class, 'destroy']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/me', [AuthController::class, 'me']);
+
+//Magasin
+Route::get('/magasins', [MagasinController::class, 'index']);
+Route::get('/magasins/{id}', [MagasinController::class, 'show']);
+Route::post('/magasins', [MagasinController::class, 'store']);
+Route::put('/magasins/{id}', [MagasinController::class, 'update']);
+Route::delete('/magasins/{id}', [MagasinController::class, 'destroy']);
